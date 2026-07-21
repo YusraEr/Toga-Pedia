@@ -11,7 +11,7 @@ function PlantCard({ plant }) {
       <div className="plant-card__body">
         <div className="plant-card__header">
           <span className="eyebrow eyebrow--soft">{plant.kategori?.nama_kategori ?? 'Kategori umum'}</span>
-          <span className="plant-card__tag">{plant.bagian_dimanfaatkan}</span>
+          <span className="plant-card__tag">Detail lengkap</span>
         </div>
 
         <div>

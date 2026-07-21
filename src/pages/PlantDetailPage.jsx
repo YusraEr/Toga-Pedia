@@ -23,7 +23,7 @@ function PlantDetailPage() {
         if (result.error && !result.data) {
           setErrorMessage('Data tanaman tidak ditemukan. Kembali ke katalog untuk memilih tanaman lain.')
         } else {
-          setErrorMessage(result.error ? 'Data demo ditampilkan karena koneksi Supabase belum siap.' : '')
+          setErrorMessage(result.error ? 'Data cadangan ditampilkan karena database belum mengembalikan hasil.' : '')
         }
       } catch (error) {
         if (!isMounted) {
@@ -82,7 +82,7 @@ function PlantDetailPage() {
     )
   }
 
-  const photoSource = tanaman.foto_url || 'https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=1200&q=80'
+  const photoSource = tanaman.image_url || 'https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=1200&q=80'
 
   return (
     <section className="stack section">
@@ -127,15 +127,15 @@ function PlantDetailPage() {
             </div>
             <div>
               <dt>Dosis</dt>
-              <dd>{tanaman.dosis_konsumsi}</dd>
+              <dd>{tanaman.takaran_konsumsi}</dd>
             </div>
             <div>
               <dt>Cara olah</dt>
-              <dd>{tanaman.cara_olah}</dd>
+              <dd>{tanaman.panduan_olah}</dd>
             </div>
             <div>
               <dt>Cara tanam</dt>
-              <dd>{tanaman.cara_tanam}</dd>
+              <dd>{tanaman.panduan_tanam}</dd>
             </div>
             <div>
               <dt>Deskripsi</dt>

@@ -1,16 +1,29 @@
-# React + Vite
+# TOGA Pedia Desa
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend React + Vite untuk katalog TOGA, detail tanaman, dan dashboard admin berbasis Supabase.
 
-Currently, two official plugins are available:
+## Setup Lokal
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install dependency.
+2. Pastikan file `.env.local` berisi `VITE_SUPABASE_URL` dan `VITE_SUPABASE_ANON_KEY`.
+3. Jalankan `npm run dev`.
 
-## React Compiler
+## Database Supabase
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Skema database ada di [supabase/schema.sql](supabase/schema.sql). File ini membuat dua tabel inti:
 
-## Expanding the ESLint configuration
+1. `kategori` untuk kelompok tanaman.
+2. `tanaman_toga` untuk data katalog utama.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Seed awal ada di [supabase/seed.sql](supabase/seed.sql) dan bisa dijalankan setelah schema aktif.
+
+Urutan yang disarankan di Supabase SQL Editor:
+
+1. Jalankan `supabase/schema.sql`.
+2. Jalankan `supabase/seed.sql`.
+
+## Catatan Akses Data
+
+Koneksi Supabase dipusatkan di [src/supabaseClient.js](src/supabaseClient.js). Seluruh query katalog dan detail tanaman lewat [src/services/tanamanService.js](src/services/tanamanService.js).
+
+Frontend hanya memakai anon key publik Supabase yang dibaca dari `VITE_SUPABASE_ANON_KEY`.

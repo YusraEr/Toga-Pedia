@@ -3,7 +3,7 @@ import PlantCard from '../components/PlantCard'
 import { getTanamanCatalog } from '../services/tanamanService'
 
 function buildSummary(total, source, hasError) {
-  const sourceLabel = source === 'supabase' ? 'data live dari Supabase' : 'data demo yang aman dipakai saat setup awal'
+  const sourceLabel = source === 'supabase' ? 'data live dari Supabase' : 'data cadangan dari demo'
 
   if (hasError) {
     return `${total} tanaman ditampilkan dari ${sourceLabel}.`
@@ -32,7 +32,7 @@ function HomePage() {
 
         setTanaman(result.data)
         setSource(result.source)
-        setErrorMessage(result.error ? 'Koneksi Supabase belum siap, sehingga data demo ditampilkan dulu.' : '')
+        setErrorMessage(result.error ? 'Supabase belum mengembalikan data, sehingga data cadangan ditampilkan dulu.' : '')
       } catch (error) {
         if (!isMounted) {
           return
@@ -87,7 +87,7 @@ function HomePage() {
               Tanaman terdata
             </span>
             <span className="catalog-stat">
-              <strong>{source === 'supabase' ? 'Live' : 'Demo'}</strong>
+              <strong>{source === 'supabase' ? 'Live' : 'Cadangan'}</strong>
               Sumber data
             </span>
             <span className="catalog-stat catalog-stat--accent">Mobile-first dan responsif</span>
