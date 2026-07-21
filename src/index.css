@@ -523,6 +523,232 @@ h2 {
   border: 1px solid rgba(145, 107, 75, 0.2);
 }
 
+.notice--success {
+  background: rgba(235, 248, 239, 0.92);
+  border-color: rgba(47, 111, 65, 0.18);
+}
+
+.notice--actionable {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.notice__content {
+  display: grid;
+  gap: 6px;
+}
+
+.notice__button {
+  white-space: nowrap;
+}
+
+.auth-card {
+  display: grid;
+  gap: 20px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--brand-strong);
+}
+
+.field input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(48, 64, 54, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text-main);
+  outline: none;
+}
+
+.field input:focus {
+  border-color: rgba(47, 111, 65, 0.42);
+  box-shadow: 0 0 0 4px rgba(47, 111, 65, 0.12);
+}
+
+.field-error,
+.field-hint {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.field-error {
+  color: #8f2f2f;
+}
+
+.field-hint {
+  color: var(--text-muted);
+}
+
+.media-preview {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.media-preview span {
+  font-weight: 700;
+  color: var(--brand-strong);
+}
+
+.media-preview img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.auth-submit {
+  width: fit-content;
+}
+
+.auth-loading {
+  gap: 10px;
+}
+
+.auth-notice {
+  margin-top: 4px;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-panel,
+.admin-list {
+  display: grid;
+  gap: 20px;
+}
+
+.admin-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-form {
+  display: grid;
+  gap: 20px;
+}
+
+.form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(48, 64, 54, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text-main);
+  outline: none;
+  resize: vertical;
+}
+
+.field textarea:focus,
+.field select:focus {
+  border-color: rgba(47, 111, 65, 0.42);
+  box-shadow: 0 0 0 4px rgba(47, 111, 65, 0.12);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.button.danger {
+  background: linear-gradient(135deg, #b33f3f 0%, #8f2f2f 100%);
+  color: #fff;
+}
+
+.admin-loading {
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px dashed var(--border-soft);
+  color: var(--text-muted);
+}
+
+.admin-table {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.admin-row h3 {
+  font-size: 1.1rem;
+}
+
+.admin-row p,
+.admin-row small {
+  color: var(--text-muted);
+}
+
+.admin-row__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(18, 26, 18, 0.45);
+  backdrop-filter: blur(8px);
+  z-index: 30;
+}
+
+.modal-card {
+  width: min(560px, 100%);
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  box-shadow: 0 30px 80px rgba(17, 26, 17, 0.25);
+}
+
 .notice strong {
   color: var(--earth);
 }
@@ -788,6 +1014,39 @@ h2 {
 
   .catalog-panel-card {
     inset: auto 14px 14px 14px;
+  }
+}
+
+@media (max-width: 720px) {
+  .notice--actionable,
+  .dashboard-header {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .auth-submit {
+    width: 100%;
+  }
+
+  .notice__button {
+    width: 100%;
+  }
+
+  .form-grid,
+  .admin-panel__header,
+  .admin-row {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .form-actions,
+  .admin-row__actions {
+    width: 100%;
+  }
+
+  .form-actions .button,
+  .admin-row__actions .button {
+    width: 100%;
   }
 }
 

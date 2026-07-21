@@ -1,8 +1,9 @@
 import { Link, NavLink } from 'react-router-dom'
 
 const navItems = [
-  { label: 'Beranda', to: '/' },
-  { label: 'Detail Tanaman', to: '/tanaman/jahe' },
+  { label: 'Beranda', to: '/', end: true },
+  { label: 'Katalog', to: '/katalog' },
+  { label: 'Pencarian', to: '/pencarian' },
   { label: 'Admin', to: '/admin' },
 ]
 
@@ -23,6 +24,7 @@ function AppShell({ children }) {
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.end}
               className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
             >
               {item.label}
