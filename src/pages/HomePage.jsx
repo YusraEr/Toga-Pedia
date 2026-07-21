@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import PlantCard from '../components/PlantCard'
 import { getTanamanCatalog } from '../services/tanamanService'
 
@@ -18,6 +19,7 @@ function HomePage() {
   const [source, setSource] = useState('demo')
   const [errorMessage, setErrorMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {
     let isMounted = true
@@ -53,7 +55,13 @@ function HomePage() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [reloadToken])
+
+  function handleRetry() {
+    setLoading(true)
+    setErrorMessage('')
+    setReloadToken((value) => value + 1)
+  }
 
   const summary = useMemo(
     () => buildSummary(tanaman.length, source, Boolean(errorMessage)),
@@ -105,9 +113,14 @@ function HomePage() {
       </section>
 
       {errorMessage ? (
-        <aside className="notice" role="status">
-          <strong>Catatan data:</strong>
-          <span>{errorMessage}</span>
+        <aside className="notice notice--actionable" role="status" aria-live="polite">
+          <div className="notice__content">
+            <strong>Catatan data:</strong>
+            <span>{errorMessage}</span>
+          </div>
+          <button className="button secondary notice__button" type="button" onClick={handleRetry}>
+            Muat ulang
+          </button>
         </aside>
       ) : null}
 
@@ -133,7 +146,7 @@ function HomePage() {
         </div>
 
         {loading ? (
-          <div className="catalog-grid">
+          <div className="catalog-grid" aria-busy="true" aria-label="Memuat katalog tanaman">
             {Array.from({ length: 4 }).map((_, index) => (
               <article key={index} className="plant-card plant-card--loading">
                 <div className="plant-card__media plant-card__media--skeleton" />
@@ -153,13 +166,18 @@ function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="empty-state surface-card">
+          <div className="empty-state surface-card center">
             <h2>{searchTerm ? 'Tanaman tidak ditemukan' : 'Belum ada data tanaman'}</h2>
             <p>
               {searchTerm
                 ? 'Coba gunakan nama tanaman yang lebih umum atau hapus kata kunci pencarian.'
                 : 'Tambahkan data di Supabase agar katalog publik langsung terisi.'}
             </p>
+            {searchTerm ? (
+              <Link className="button primary" to="/" onClick={() => setSearchTerm('')}>
+                Hapus pencarian
+              </Link>
+            ) : null}
           </div>
         )}
       </section>
