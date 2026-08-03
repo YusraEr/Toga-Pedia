@@ -64,7 +64,14 @@ const demoTanaman = [
 ]
 
 function normalizeTanaman(item) {
-  const generatedSlug = item.nama_lokal?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') ?? String(item.id)
+  const generatedSlug =
+    item.slug ||
+    item.nama_lokal
+      ?.toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') ||
+    String(item.id)
 
   return {
     id: item.id,
@@ -103,28 +110,48 @@ export async function getTanamanCatalog() {
     .order('nama_lokal', { ascending: true })
 
   if (error) {
-    return { data: demoTanaman, source: 'demo', error }
+    return { data: demoTanaman.map(normalizeTanaman), source: 'demo', error }
   }
 
-  return { data: (data ?? []).map(normalizeTanaman), source: 'supabase', error: null }
+  const normalizedList = (data ?? []).map(normalizeTanaman)
+  if (normalizedList.length === 0) {
+    return { data: demoTanaman.map(normalizeTanaman), source: 'demo', error: null }
+  }
+
+  return { data: normalizedList, source: 'supabase', error: null }
 }
 
 export async function getTanamanBySlug(slug) {
-  const catalog = await getTanamanCatalog()
-  const tanaman = catalog.data.find((item) => item.slug === slug) ?? null
-
-  if (tanaman) {
-    return { data: tanaman, source: catalog.source, error: catalog.error }
+  if (!slug) {
+    return { data: null, source: 'none', error: new Error('Slug tidak valid.') }
   }
 
-  const fallback = demoTanaman.find((item) => item.slug === slug) ?? null
+  const cleanSlug = decodeURIComponent(String(slug)).toLowerCase().trim().replace(/\/+$/, '')
 
-  if (fallback) {
-    return {
-      data: normalizeTanaman(fallback),
-      source: 'demo',
-      error: new Error('Tanaman tidak ditemukan di database, memakai data demo.'),
-    }
+  const catalog = await getTanamanCatalog()
+  const allPlants = catalog.data && catalog.data.length > 0 ? catalog.data : demoTanaman.map(normalizeTanaman)
+
+  const isMatch = (item) => {
+    if (!item) return false
+    const itemSlug = (item.slug || '').toLowerCase()
+    const itemId = String(item.id || '').toLowerCase()
+    const generatedSlug = (item.nama_lokal || '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+
+    return itemSlug === cleanSlug || itemId === cleanSlug || generatedSlug === cleanSlug
+  }
+
+  let found = allPlants.find(isMatch)
+
+  if (!found) {
+    found = demoTanaman.map(normalizeTanaman).find(isMatch)
+  }
+
+  if (found) {
+    return { data: found, source: catalog.source, error: null }
   }
 
   return { data: null, source: catalog.source, error: new Error('Tanaman tidak ditemukan.') }
