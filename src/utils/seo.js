@@ -1,7 +1,7 @@
 /**
  * Dynamically updates document title, meta description, and OpenGraph tags for SEO and link sharing.
  */
-export function setPageMeta({ title, description, image, url }) {
+export function setPageMeta({ title, description, url }) {
   const siteName = 'TOGA Pedia Desa'
   const fullTitle = title ? `${title} | ${siteName}` : siteName
 
@@ -24,10 +24,6 @@ export function setPageMeta({ title, description, image, url }) {
 
   if (title) {
     setMetaTag('meta[property="og:title"]', 'property', 'og:title', fullTitle)
-  }
-
-  if (image) {
-    setMetaTag('meta[property="og:image"]', 'property', 'og:image', image)
   }
 
   setMetaTag('meta[property="og:url"]', 'property', 'og:url', url || window.location.href)
