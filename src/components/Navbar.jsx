@@ -5,7 +5,7 @@ import { LeafIcon } from './Icons'
 const navItems = [
   { label: 'Beranda', to: '/', end: true },
   { label: 'Katalog Tanaman', to: '/katalog' },
-  { label: 'Admin', to: '/admin' },
+  { label: 'Dashboard Admin', to: '/admin' },
 ]
 
 function Navbar() {
@@ -46,15 +46,44 @@ function Navbar() {
           ))}
         </nav>
 
-        {/* Mobile Toggle Button */}
+        {/* Mobile Hamburger Toggle Button */}
         <button
           className="mobile-toggle"
           type="button"
           onClick={toggleMobileMenu}
           aria-expanded={mobileMenuOpen}
-          aria-label="Buka menu navigasi"
+          aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu navigasi'}
         >
-          <span className={`hamburger-icon ${mobileMenuOpen ? 'open' : ''}`} />
+          {mobileMenuOpen ? (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          )}
         </button>
       </div>
 
