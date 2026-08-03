@@ -2096,13 +2096,62 @@ h2 {
     display: block;
   }
 
-  .wiki-layout,
+  .wiki-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
   .wiki-grid-two {
     grid-template-columns: 1fr;
   }
 
   .wiki-sidebar {
     position: static;
+    order: -1;
+    width: 100%;
+  }
+
+  .wiki-header-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .qr-header-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .infobox-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding-bottom: 10px;
+  }
+
+  .infobox-row dd {
+    text-align: left;
+  }
+
+  .wiki-header-card,
+  .wiki-section,
+  .wiki-qr-card {
+    padding: 20px 16px;
+  }
+
+  .wiki-title {
+    font-size: 1.95rem;
+  }
+
+  .wiki-latin-name {
+    font-size: 1.05rem;
+  }
+
+  .wiki-section-title {
+    font-size: 1.15rem;
   }
 }
 
