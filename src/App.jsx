@@ -8,7 +8,6 @@ import CatalogPage from './pages/CatalogPage'
 import HomePage from './pages/HomePage'
 import NotFoundPage from './pages/NotFoundPage'
 import PlantDetailPage from './pages/PlantDetailPage'
-import SearchPage from './pages/SearchPage'
 
 function App() {
   return (
@@ -17,7 +16,6 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/katalog" element={<CatalogPage />} />
-          <Route path="/pencarian" element={<SearchPage />} />
           <Route path="/tanaman/:slug" element={<PlantDetailPage />} />
           <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />

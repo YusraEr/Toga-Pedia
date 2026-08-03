@@ -53,7 +53,7 @@ function HomePage() {
             <Link className="button primary hero-btn" to="/katalog">
               Jelajahi Katalog Tanaman <span aria-hidden="true">→</span>
             </Link>
-            <Link className="button secondary hero-btn" to="/pencarian">
+            <Link className="button secondary hero-btn" to="/katalog">
               <span aria-hidden="true">🔍</span> Cari Tanaman Obat
             </Link>
           </div>

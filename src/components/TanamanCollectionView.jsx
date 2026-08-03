@@ -1,41 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import PlantCard from './PlantCard'
 import { getTanamanCatalog } from '../services/tanamanService'
 
-function buildSummary(total, source, hasError, isSearching, searchTerm, filteredTotal) {
-  const sourceLabel = source === 'supabase' ? 'data live dari Supabase' : 'data cadangan dari demo'
-
-  if (hasError) {
-    return `${total} tanaman ditampilkan dari ${sourceLabel}.`
-  }
-
-  if (isSearching && searchTerm.trim()) {
-    return `${filteredTotal} hasil pencarian dari ${total} tanaman.`
-  }
-
-  return `${total} tanaman tersedia dari ${sourceLabel}.`
-}
-
 function TanamanCollectionView({
-  eyebrow,
-  title,
-  description,
-  sectionEyebrow,
-  sectionTitle,
-  searchable,
-  searchLabel = 'Cari nama tanaman',
-  searchPlaceholder = 'Contoh: jahe, kunyit, sirih',
-  emptyTitle,
-  emptyDescription,
-  emptyActionLabel = 'Hapus pencarian',
-  emptyActionTo = '/',
+  eyebrow = 'Ensiklopedia Herbal',
+  title = 'Katalog Tanaman Obat Keluarga',
+  description = 'Jelajahi seluruh koleksi tanaman obat tradisional, cari berdasarkan nama lokal, atau saring berdasarkan kategori kesehatan.',
 }) {
   const [tanaman, setTanaman] = useState([])
   const [loading, setLoading] = useState(true)
   const [source, setSource] = useState('demo')
   const [errorMessage, setErrorMessage] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('Semua')
   const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {
@@ -51,7 +28,7 @@ function TanamanCollectionView({
 
         setTanaman(result.data)
         setSource(result.source)
-        setErrorMessage(result.error ? 'Supabase belum mengembalikan data, sehingga data cadangan ditampilkan dulu.' : '')
+        setErrorMessage(result.error ? 'Supabase belum mengembalikan data, menggunakan data cadangan.' : '')
       } catch (error) {
         if (!isMounted) {
           return
@@ -80,52 +57,64 @@ function TanamanCollectionView({
     setReloadToken((value) => value + 1)
   }
 
+  // Extract unique category names
+  const categories = useMemo(() => {
+    const set = new Set()
+    tanaman.forEach((item) => {
+      const catName = item.kategori?.nama_kategori
+      if (catName) {
+        set.add(catName)
+      }
+    })
+    return ['Semua', ...Array.from(set)]
+  }, [tanaman])
+
+  // Filtered plant list based on search and selected category
   const filteredTanaman = useMemo(() => {
     const normalizedTerm = searchTerm.trim().toLowerCase()
 
-    if (!searchable || !normalizedTerm) {
-      return tanaman
-    }
+    return tanaman.filter((item) => {
+      const matchesSearch =
+        !normalizedTerm ||
+        item.nama_lokal.toLowerCase().includes(normalizedTerm) ||
+        item.nama_latin.toLowerCase().includes(normalizedTerm) ||
+        item.khasiat_medis.toLowerCase().includes(normalizedTerm)
 
-    return tanaman.filter((item) => item.nama_lokal.toLowerCase().includes(normalizedTerm))
-  }, [searchTerm, searchable, tanaman])
+      const matchesCategory =
+        selectedCategory === 'Semua' || item.kategori?.nama_kategori === selectedCategory
 
-  const summary = useMemo(
-    () => buildSummary(tanaman.length, source, Boolean(errorMessage), searchable, searchTerm, filteredTanaman.length),
-    [errorMessage, filteredTanaman.length, searchTerm, searchable, source, tanaman.length],
-  )
+      return matchesSearch && matchesCategory
+    })
+  }, [searchTerm, selectedCategory, tanaman])
+
+  const handleResetFilters = () => {
+    setSearchTerm('')
+    setSelectedCategory('Semua')
+  }
 
   return (
-    <section className="stack section">
-      <section className="hero-card catalog-hero">
+    <section className="catalog-page-container">
+      {/* Hero Section */}
+      <section className="catalog-hero-card">
         <div className="catalog-hero__content">
-          <div className="eyebrow">{eyebrow}</div>
-          <h1>{title}</h1>
-          <p className="hero-copy">{description}</p>
+          <span className="eyebrow catalog-badge">
+            <span className="catalog-badge__dot" /> {eyebrow}
+          </span>
+          <h1 className="catalog-hero__title">{title}</h1>
+          <p className="catalog-hero__description">{description}</p>
 
-          <div className="catalog-hero__meta">
-            <span className="catalog-stat">
+          <div className="catalog-hero__stats">
+            <div className="catalog-stat-chip">
               <strong>{tanaman.length}</strong>
-              Tanaman terdata
-            </span>
-            <span className="catalog-stat">
-              <strong>{source === 'supabase' ? 'Live' : 'Cadangan'}</strong>
-              Sumber data
-            </span>
-            <span className="catalog-stat catalog-stat--accent">Mobile-first dan responsif</span>
-          </div>
-        </div>
-
-        <div className="catalog-hero__panel" aria-hidden="true">
-          <div className="catalog-orb catalog-orb--one" />
-          <div className="catalog-orb catalog-orb--two" />
-          <div className="catalog-panel-card">
-            <span className="eyebrow eyebrow--soft">Sorotan cepat</span>
-            <p>
-              {searchable
-                ? 'Gunakan pencarian untuk menemukan tanaman berdasarkan nama dengan tampilan yang tetap ringan.'
-                : 'Beranda ini menampilkan ringkasan platform, keunggulan, dan jalur cepat menuju katalog.'}
-            </p>
+              <span>Tanaman Terdata</span>
+            </div>
+            <div className="catalog-stat-chip">
+              <strong>{categories.length - 1}</strong>
+              <span>Kategori Kesehatan</span>
+            </div>
+            <div className="catalog-stat-chip catalog-stat-chip--accent">
+              <span>Sumber: {source === 'supabase' ? 'Supabase Live' : 'Demo Mode'}</span>
+            </div>
           </div>
         </div>
       </section>
@@ -133,7 +122,7 @@ function TanamanCollectionView({
       {errorMessage ? (
         <aside className="notice notice--actionable" role="status" aria-live="polite">
           <div className="notice__content">
-            <strong>Catatan data:</strong>
+            <strong>Catatan Data:</strong>
             <span>{errorMessage}</span>
           </div>
           <button className="button secondary notice__button" type="button" onClick={handleRetry}>
@@ -142,29 +131,73 @@ function TanamanCollectionView({
         </aside>
       ) : null}
 
-      <section className="catalog-section">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">{sectionEyebrow}</span>
-            <h2>{sectionTitle}</h2>
+      {/* Main Catalog Toolbar & Grid */}
+      <section className="catalog-main-section">
+        {/* Search & Filter Bar */}
+        <div className="catalog-filter-bar">
+          {/* Integrated Search Box */}
+          <div className="search-box">
+            <span className="search-box__icon" aria-hidden="true">🔍</span>
+            <input
+              id="catalog-search-input"
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Cari tanaman (contoh: jahe, kunyit, pencernaan...)"
+              aria-label="Cari nama atau khasiat tanaman"
+            />
+            {searchTerm && (
+              <button
+                className="search-box__clear"
+                type="button"
+                onClick={() => setSearchTerm('')}
+                aria-label="Hapus kata kunci pencarian"
+              >
+                ✕
+              </button>
+            )}
           </div>
-          <div className="catalog-tools">
-            {searchable ? (
-              <label className="search-field" htmlFor="catalog-search">
-                <span className="search-field__label">{searchLabel}</span>
-                <input
-                  id="catalog-search"
-                  type="search"
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder={searchPlaceholder}
-                />
-              </label>
-            ) : null}
-            <p className="catalog-summary">{loading ? 'Memuat katalog...' : summary}</p>
+
+          {/* Category Filter Chips */}
+          <div className="category-chips" role="group" aria-label="Filter Berdasarkan Kategori">
+            {categories.map((cat) => {
+              const count =
+                cat === 'Semua'
+                  ? tanaman.length
+                  : tanaman.filter((item) => item.kategori?.nama_kategori === cat).length
+
+              const isActive = selectedCategory === cat
+
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`category-chip ${isActive ? 'active' : ''}`}
+                >
+                  {cat} <span className="chip-count">({count})</span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
+        {/* Filter Status Line */}
+        <div className="catalog-status-bar">
+          <span className="catalog-count-info">
+            Menampilkan <strong>{filteredTanaman.length}</strong> dari {tanaman.length} tanaman obat
+            {selectedCategory !== 'Semua' ? ` dalam kategori "${selectedCategory}"` : ''}
+            {searchTerm ? ` untuk pencarian "${searchTerm}"` : ''}
+          </span>
+
+          {(searchTerm || selectedCategory !== 'Semua') && (
+            <button className="reset-filter-btn" type="button" onClick={handleResetFilters}>
+              Reset Filter &amp; Pencarian
+            </button>
+          )}
+        </div>
+
+        {/* Catalog Grid Display */}
         {loading ? (
           <div className="catalog-grid" aria-busy="true" aria-label="Memuat katalog tanaman">
             {Array.from({ length: 4 }).map((_, index) => (
@@ -186,14 +219,16 @@ function TanamanCollectionView({
             ))}
           </div>
         ) : (
-          <div className="empty-state surface-card center">
-            <h2>{emptyTitle}</h2>
-            <p>{emptyDescription}</p>
-            {searchable ? (
-              <Link className="button primary" to={emptyActionTo} onClick={() => setSearchTerm('')}>
-                {emptyActionLabel}
-              </Link>
-            ) : null}
+          <div className="empty-catalog-state surface-card center">
+            <span className="empty-icon" aria-hidden="true">🌱</span>
+            <h2>Tanaman Tidak Ditemukan</h2>
+            <p>
+              Tidak ada tanaman obat yang cocok dengan pencarian <strong>"{searchTerm}"</strong>
+              {selectedCategory !== 'Semua' ? ` pada kategori "${selectedCategory}"` : ''}.
+            </p>
+            <button className="button primary" type="button" onClick={handleResetFilters}>
+              Tampilkan Semua Tanaman
+            </button>
           </div>
         )}
       </section>
