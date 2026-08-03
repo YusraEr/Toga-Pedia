@@ -6,6 +6,7 @@ import useAuth from '../auth/useAuth'
 import { createCategory, deleteCategory, fetchCategoriesAdmin, updateCategory } from '../services/adminCategoryService'
 import { createTanaman, deleteTanaman, fetchTanamanAdmin, updateTanaman } from '../services/adminTanamanService'
 import { LeafIcon, SearchIcon, SproutIcon, WarningIcon } from '../components/Icons'
+import { useDebounce } from '../hooks/useDebounce'
 
 const ITEMS_PER_PAGE = 6
 const DEFAULT_PLANT_IMAGE = 'https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=400&q=80'
@@ -28,6 +29,7 @@ function AdminDashboardPage() {
 
   // Search, Filter & Pagination for Tanaman
   const [tanamanQuery, setTanamanQuery] = useState('')
+  const debouncedTanamanQuery = useDebounce(tanamanQuery, 300)
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [sortMode, setSortMode] = useState('newest')
   const [page, setPage] = useState(1)
@@ -185,7 +187,7 @@ function AdminDashboardPage() {
   )
 
   const filteredTanaman = useMemo(() => {
-    const normalizedQuery = tanamanQuery.trim().toLowerCase()
+    const normalizedQuery = debouncedTanamanQuery.trim().toLowerCase()
     let list = tanaman
 
     if (categoryFilter !== 'all') {
@@ -207,7 +209,7 @@ function AdminDashboardPage() {
     }
 
     return list
-  }, [categoryFilter, sortMode, tanaman, tanamanQuery])
+  }, [categoryFilter, sortMode, tanaman, debouncedTanamanQuery])
 
   const totalPages = Math.max(1, Math.ceil(filteredTanaman.length / ITEMS_PER_PAGE))
   const currentPage = Math.min(page, totalPages)

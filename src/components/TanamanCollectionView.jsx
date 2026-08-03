@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import PlantCard from './PlantCard'
 import { getTanamanCatalog } from '../services/tanamanService'
 import { SearchIcon, SproutIcon } from './Icons'
+import { useDebounce } from '../hooks/useDebounce'
 
 function TanamanCollectionView({
   eyebrow = 'Ensiklopedia Herbal',
@@ -15,6 +16,9 @@ function TanamanCollectionView({
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Semua')
   const [reloadToken, setReloadToken] = useState(0)
+
+  // Apply 300ms debouncing to search input
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
   useEffect(() => {
     let isMounted = true
@@ -70,9 +74,9 @@ function TanamanCollectionView({
     return ['Semua', ...Array.from(set)]
   }, [tanaman])
 
-  // Filtered plant list based on search and selected category
+  // Filtered plant list based on debounced search and selected category
   const filteredTanaman = useMemo(() => {
-    const normalizedTerm = searchTerm.trim().toLowerCase()
+    const normalizedTerm = debouncedSearchTerm.trim().toLowerCase()
 
     return tanaman.filter((item) => {
       const matchesSearch =
@@ -86,7 +90,7 @@ function TanamanCollectionView({
 
       return matchesSearch && matchesCategory
     })
-  }, [searchTerm, selectedCategory, tanaman])
+  }, [debouncedSearchTerm, selectedCategory, tanaman])
 
   const handleResetFilters = () => {
     setSearchTerm('')
@@ -190,7 +194,7 @@ function TanamanCollectionView({
           <span className="catalog-count-info">
             Menampilkan <strong>{filteredTanaman.length}</strong> dari {tanaman.length} tanaman obat
             {selectedCategory !== 'Semua' ? ` dalam kategori "${selectedCategory}"` : ''}
-            {searchTerm ? ` untuk pencarian "${searchTerm}"` : ''}
+            {debouncedSearchTerm ? ` untuk pencarian "${debouncedSearchTerm}"` : ''}
           </span>
 
           {(searchTerm || selectedCategory !== 'Semua') && (
@@ -228,7 +232,7 @@ function TanamanCollectionView({
             </span>
             <h2>Tanaman Tidak Ditemukan</h2>
             <p>
-              Tidak ada tanaman obat yang cocok dengan pencarian <strong>"{searchTerm}"</strong>
+              Tidak ada tanaman obat yang cocok dengan pencarian <strong>"{debouncedSearchTerm}"</strong>
               {selectedCategory !== 'Semua' ? ` pada kategori "${selectedCategory}"` : ''}.
             </p>
             <button className="button primary" type="button" onClick={handleResetFilters}>
