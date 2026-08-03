@@ -9,15 +9,15 @@ function Footer() {
         <div className="footer-col footer-col--brand">
           <div className="brand footer-brand">
             <span className="brand-mark" aria-hidden="true">
-              <LeafIcon size={22} />
+              <LeafIcon size={24} />
             </span>
-            <span>
+            <span className="brand-text-wrapper">
               <strong>TOGA Pedia Desa</strong>
               <small>Ensiklopedia Tanaman Obat Keluarga</small>
             </span>
           </div>
           <p className="footer-desc">
-            Platform edukasi digital tanaman obat keluarga untuk membantu warga desa mengenal khasiat kesehatan dan takaran konsumsi aman.
+            Platform edukasi digital tanaman obat keluarga untuk membantu warga desa mengenal khasiat kesehatan, ramuan tradisional, dan takaran konsumsi aman.
           </p>
         </div>
 
@@ -43,13 +43,16 @@ function Footer() {
           <ul className="footer-info-list">
             <li>KKN-T 116 Universitas Hasanuddin</li>
             <li>Desa Benteng Palioi</li>
+            <li>Kab. Bulukumba, Sulawesi Selatan</li>
           </ul>
         </div>
       </div>
 
-      <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} TOGA Pedia Desa. Hak Cipta Dilindungi.</p>
-        <span className="footer-tagline">KKN-T 116 Unhas Benteng Palioi</span>
+      <div className="footer-bottom-wrapper">
+        <div className="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} TOGA Pedia Desa. Hak Cipta Dilindungi.</p>
+          <span className="footer-tagline">KKN-T 116 Unhas Benteng Palioi</span>
+        </div>
       </div>
     </footer>
   )
