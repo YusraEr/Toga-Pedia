@@ -392,36 +392,6 @@ function PlantDetailPage() {
               </p>
             </div>
           </div>
-
-          {/* QR Code Plakat Card */}
-          <div className="wiki-qr-card">
-            <div className="qr-card-header">
-              <QRIcon size={20} />
-              <h4>QR Code Plakat Kebun</h4>
-            </div>
-
-            <div className="qr-card-body">
-              {qrDataUrl ? (
-                <div className="qr-preview-wrapper">
-                  <img
-                    src={qrDataUrl}
-                    alt={`QR Code ${tanaman.nama_lokal}`}
-                    className="qr-preview-img"
-                  />
-                </div>
-              ) : (
-                <div className="qr-loading">Generasi QR Code...</div>
-              )}
-
-              <p className="qr-card-hint">
-                Pindai QR ini dengan kamera HP untuk langsung menuju halaman detail {tanaman.nama_lokal}.
-              </p>
-            </div>
-
-            <button className="button primary qr-download-btn" type="button" onClick={handleDownloadQR}>
-              <DownloadIcon size={18} /> Unduh QR Code Stiker (PNG)
-            </button>
-          </div>
         </aside>
       </div>
 
