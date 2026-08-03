@@ -24,6 +24,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboardPage />
+                {/* enough */}
               </ProtectedRoute>
             }
           />
