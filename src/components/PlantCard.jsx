@@ -1,22 +1,40 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=800&q=80'
+
 function PlantCard({ plant }) {
+  const [imgSrc, setImgSrc] = useState(plant.image_url || DEFAULT_IMAGE)
+
+  const handleImageError = () => {
+    if (imgSrc !== DEFAULT_IMAGE) {
+      setImgSrc(DEFAULT_IMAGE)
+    }
+  }
+
   return (
-    <article className="plant-card">
-      <div className="plant-card__media" aria-hidden="true">
-        <div className="plant-card__leaf plant-card__leaf--one" />
-        <div className="plant-card__leaf plant-card__leaf--two" />
+    <Link to={`/tanaman/${plant.slug}`} className="plant-card" title={`Lihat detail ${plant.nama_lokal}`}>
+      <div className="plant-card__media">
+        <img
+          src={imgSrc}
+          alt={`Foto preview ${plant.nama_lokal}`}
+          className="plant-card__img"
+          onError={handleImageError}
+          loading="lazy"
+        />
+        <div className="plant-card__media-overlay" />
+        <span className="eyebrow eyebrow--soft plant-card__category">
+          {plant.kategori?.nama_kategori ?? 'Kategori umum'}
+        </span>
       </div>
 
       <div className="plant-card__body">
         <div className="plant-card__header">
-          <span className="eyebrow eyebrow--soft">{plant.kategori?.nama_kategori ?? 'Kategori umum'}</span>
+          <div>
+            <h3 className="plant-card__title">{plant.nama_lokal}</h3>
+            <p className="plant-card__latin">{plant.nama_latin}</p>
+          </div>
           <span className="plant-card__tag">Detail lengkap</span>
-        </div>
-
-        <div>
-          <h2 className="plant-card__title">{plant.nama_lokal}</h2>
-          <p className="plant-card__latin">{plant.nama_latin}</p>
         </div>
 
         <p className="plant-card__description">{plant.deskripsi}</p>
@@ -26,12 +44,12 @@ function PlantCard({ plant }) {
             <strong>Khasiat:</strong> {plant.khasiat_medis}
           </p>
 
-          <Link className="plant-card__link" to={`/tanaman/${plant.slug}`}>
-            Lihat detail
-          </Link>
+          <span className="plant-card__link">
+            Lihat detail <span className="plant-card__arrow" aria-hidden="true">→</span>
+          </span>
         </div>
       </div>
-    </article>
+    </Link>
   )
 }
 
