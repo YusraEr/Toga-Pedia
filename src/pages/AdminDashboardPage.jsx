@@ -5,187 +5,104 @@ import TanamanForm from '../components/TanamanForm'
 import useAuth from '../auth/useAuth'
 import { createCategory, deleteCategory, fetchCategoriesAdmin, updateCategory } from '../services/adminCategoryService'
 import { createTanaman, deleteTanaman, fetchTanamanAdmin, updateTanaman } from '../services/adminTanamanService'
+import { LeafIcon, SearchIcon, SproutIcon, WarningIcon } from '../components/Icons'
 
 const ITEMS_PER_PAGE = 6
+const DEFAULT_PLANT_IMAGE = 'https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=400&q=80'
 
 function AdminDashboardPage() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
+
+  // State Management
   const [tanaman, setTanaman] = useState([])
   const [categories, setCategories] = useState([])
-  const [categorySaving, setCategorySaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [categorySaving, setCategorySaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+
+  // Main Active Tab: 'tanaman' | 'kategori'
+  const [activeTab, setActiveTab] = useState('tanaman')
+
+  // Search, Filter & Pagination for Tanaman
   const [tanamanQuery, setTanamanQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [sortMode, setSortMode] = useState('newest')
   const [page, setPage] = useState(1)
+
+  // Modal / Form States
+  const [showTanamanForm, setShowTanamanForm] = useState(false)
   const [editingTanaman, setEditingTanaman] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
+
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
   const [deleteCategoryTarget, setDeleteCategoryTarget] = useState(null)
-  const [activeFormTab, setActiveFormTab] = useState('tanaman')
 
+  // Auth logout
   async function handleLogout() {
     await signOut()
     navigate('/admin/login', { replace: true })
   }
 
-  function handleStartTanamanEdit(item) {
-    setErrorMessage('')
-    setSuccessMessage('')
-    setActiveFormTab('tanaman')
-    setEditingCategory(null)
-    setDeleteCategoryTarget(null)
-    setEditingTanaman(item)
-  }
-
-  function handleStartTanamanCreate() {
-    setErrorMessage('')
-    setSuccessMessage('')
-    setActiveFormTab('tanaman')
-    setEditingTanaman(null)
-    setDeleteTarget(null)
-  }
-
-  function handleStartCategoryEdit(item) {
-    setErrorMessage('')
-    setSuccessMessage('')
-    setActiveFormTab('kategori')
-    setEditingTanaman(null)
-    setDeleteTarget(null)
-    setEditingCategory(item)
-  }
-
-  function handleStartCategoryCreate() {
-    setErrorMessage('')
-    setSuccessMessage('')
-    setActiveFormTab('kategori')
-    setEditingCategory(null)
-  }
-
-  function resetTanamanFilters() {
-    setTanamanQuery('')
-    setCategoryFilter('all')
-    setSortMode('newest')
-    setPage(1)
-  }
-
-  useEffect(() => {
-    let isMounted = true
-
-    async function loadData() {
-      try {
-        setLoading(true)
-        const [tanamanData, categoryData] = await Promise.all([fetchTanamanAdmin(), fetchCategoriesAdmin()])
-
-        if (!isMounted) {
-          return
-        }
-
-        setTanaman(tanamanData)
-        setCategories(categoryData)
-        setErrorMessage('')
-      } catch (error) {
-        if (!isMounted) {
-          return
-        }
-
-        setErrorMessage(error instanceof Error ? error.message : 'Gagal memuat data tanaman.')
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    void loadData()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  async function handleReload() {
+  // Load Data
+  async function loadData() {
     try {
       setLoading(true)
       const [tanamanData, categoryData] = await Promise.all([fetchTanamanAdmin(), fetchCategoriesAdmin()])
       setTanaman(tanamanData)
       setCategories(categoryData)
       setErrorMessage('')
-      setPage(1)
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Gagal memuat data tanaman.')
+      setErrorMessage(error instanceof Error ? error.message : 'Gagal memuat data admin.')
     } finally {
       setLoading(false)
     }
   }
 
-  const editingId = useMemo(() => editingTanaman?.id ?? null, [editingTanaman])
+  useEffect(() => {
+    void loadData()
+  }, [])
 
-  const categoryOptions = useMemo(() => categories.map((category) => ({ value: String(category.id), label: category.nama_kategori })), [categories])
+  // Plant Handlers
+  function handleOpenCreateTanaman() {
+    setErrorMessage('')
+    setSuccessMessage('')
+    setEditingTanaman(null)
+    setShowTanamanForm(true)
+  }
 
-  const filteredTanaman = useMemo(() => {
-    const normalizedQuery = tanamanQuery.trim().toLowerCase()
+  function handleOpenEditTanaman(item) {
+    setErrorMessage('')
+    setSuccessMessage('')
+    setEditingTanaman(item)
+    setShowTanamanForm(true)
+  }
 
-    let nextTanaman = tanaman
+  function handleCloseTanamanForm() {
+    setShowTanamanForm(false)
+    setEditingTanaman(null)
+  }
 
-    if (categoryFilter !== 'all') {
-      nextTanaman = nextTanaman.filter((item) => String(item.kategori?.id ?? '') === categoryFilter)
-    }
-
-    if (normalizedQuery) {
-      nextTanaman = nextTanaman.filter((item) => {
-        const searchableText = [item.nama_lokal, item.nama_latin, item.kategori?.nama_kategori]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase()
-
-        return searchableText.includes(normalizedQuery)
-      })
-    }
-
-    if (sortMode === 'alphabetical') {
-      return [...nextTanaman].sort((left, right) => left.nama_lokal.localeCompare(right.nama_lokal))
-    }
-
-    return nextTanaman
-  }, [categoryFilter, sortMode, tanaman, tanamanQuery])
-
-  const totalPages = Math.max(1, Math.ceil(filteredTanaman.length / ITEMS_PER_PAGE))
-  const currentPage = Math.min(page, totalPages)
-  const paginatedTanaman = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredTanaman.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [currentPage, filteredTanaman])
-
-  const visibleRangeLabel = useMemo(() => {
-    if (filteredTanaman.length === 0) {
-      return '0 data'
-    }
-
-    const start = (currentPage - 1) * ITEMS_PER_PAGE + 1
-    const end = Math.min(currentPage * ITEMS_PER_PAGE, filteredTanaman.length)
-    return `${start}-${end} dari ${filteredTanaman.length}`
-  }, [currentPage, filteredTanaman.length])
-
-  async function handleSave(payload) {
+  async function handleSaveTanaman(payload) {
     try {
       setSaving(true)
 
       if (editingTanaman) {
         const updated = await updateTanaman(editingTanaman.id, payload)
         setTanaman((current) => current.map((item) => (item.id === updated.id ? updated : item)))
+        setSuccessMessage(`Data tanaman "${updated.nama_lokal}" berhasil diperbarui.`)
       } else {
         const created = await createTanaman(payload)
         setTanaman((current) => [created, ...current])
+        setSuccessMessage(`Tanaman baru "${created.nama_lokal}" berhasil ditambahkan.`)
       }
 
+      setShowTanamanForm(false)
       setEditingTanaman(null)
       setErrorMessage('')
-      setSuccessMessage(editingTanaman ? 'Data tanaman berhasil diperbarui.' : 'Data tanaman berhasil ditambahkan.')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gagal menyimpan data tanaman.')
     } finally {
@@ -193,36 +110,55 @@ function AdminDashboardPage() {
     }
   }
 
-  async function handleDeleteConfirmed() {
-    if (!deleteTarget) {
-      return
-    }
-
+  async function handleDeleteTanamanConfirmed() {
+    if (!deleteTarget) return
     try {
       await deleteTanaman(deleteTarget.id)
       setTanaman((current) => current.filter((item) => item.id !== deleteTarget.id))
+      setSuccessMessage(`Tanaman "${deleteTarget.nama_lokal}" berhasil dihapus.`)
       setDeleteTarget(null)
-      setSuccessMessage('Data tanaman berhasil dihapus.')
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Gagal menghapus data tanaman.')
+      setErrorMessage(error instanceof Error ? error.message : 'Gagal menghapus tanaman.')
     }
   }
 
-  async function handleCategorySave(payload) {
+  // Category Handlers
+  function handleOpenCreateCategory() {
+    setErrorMessage('')
+    setSuccessMessage('')
+    setEditingCategory(null)
+    setShowCategoryForm(true)
+  }
+
+  function handleOpenEditCategory(item) {
+    setErrorMessage('')
+    setSuccessMessage('')
+    setEditingCategory(item)
+    setShowCategoryForm(true)
+  }
+
+  function handleCloseCategoryForm() {
+    setShowCategoryForm(false)
+    setEditingCategory(null)
+  }
+
+  async function handleSaveCategory(payload) {
     try {
       setCategorySaving(true)
 
       if (editingCategory) {
         const updated = await updateCategory(editingCategory.id, payload)
         setCategories((current) => current.map((item) => (item.id === updated.id ? updated : item)))
+        setSuccessMessage(`Kategori "${updated.nama_kategori}" berhasil diperbarui.`)
       } else {
         const created = await createCategory(payload)
-        setCategories((current) => [...current, created].sort((left, right) => left.nama_kategori.localeCompare(right.nama_kategori)))
+        setCategories((current) => [...current, created].sort((a, b) => a.nama_kategori.localeCompare(b.nama_kategori)))
+        setSuccessMessage(`Kategori baru "${created.nama_kategori}" berhasil ditambahkan.`)
       }
 
+      setShowCategoryForm(false)
       setEditingCategory(null)
       setErrorMessage('')
-      setSuccessMessage(editingCategory ? 'Kategori berhasil diperbarui.' : 'Kategori berhasil ditambahkan.')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gagal menyimpan kategori.')
     } finally {
@@ -231,373 +167,474 @@ function AdminDashboardPage() {
   }
 
   async function handleDeleteCategoryConfirmed() {
-    if (!deleteCategoryTarget) {
-      return
-    }
-
+    if (!deleteCategoryTarget) return
     try {
       await deleteCategory(deleteCategoryTarget.id)
       setCategories((current) => current.filter((item) => item.id !== deleteCategoryTarget.id))
+      setSuccessMessage(`Kategori "${deleteCategoryTarget.nama_kategori}" berhasil dihapus.`)
       setDeleteCategoryTarget(null)
-      setSuccessMessage('Kategori berhasil dihapus.')
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Gagal menghapus kategori.')
     }
   }
 
+  // Filters & Computations
+  const categoryOptions = useMemo(
+    () => categories.map((cat) => ({ value: String(cat.id), label: cat.nama_kategori })),
+    [categories]
+  )
+
+  const filteredTanaman = useMemo(() => {
+    const normalizedQuery = tanamanQuery.trim().toLowerCase()
+    let list = tanaman
+
+    if (categoryFilter !== 'all') {
+      list = list.filter((item) => String(item.kategori?.id ?? '') === categoryFilter)
+    }
+
+    if (normalizedQuery) {
+      list = list.filter((item) => {
+        const text = [item.nama_lokal, item.nama_latin, item.kategori?.nama_kategori]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase()
+        return text.includes(normalizedQuery)
+      })
+    }
+
+    if (sortMode === 'alphabetical') {
+      return [...list].sort((a, b) => a.nama_lokal.localeCompare(b.nama_lokal))
+    }
+
+    return list
+  }, [categoryFilter, sortMode, tanaman, tanamanQuery])
+
+  const totalPages = Math.max(1, Math.ceil(filteredTanaman.length / ITEMS_PER_PAGE))
+  const currentPage = Math.min(page, totalPages)
+  const paginatedTanaman = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredTanaman.slice(start, start + ITEMS_PER_PAGE)
+  }, [currentPage, filteredTanaman])
+
+  const resetFilters = () => {
+    setTanamanQuery('')
+    setCategoryFilter('all')
+    setSortMode('newest')
+    setPage(1)
+  }
+
   return (
-    <section className="stack section admin-workspace">
-      <article className="surface-card auth-card admin-hero">
-        <div className="dashboard-header">
+    <div className="admin-dashboard-container">
+      {/* CMS Header Banner */}
+      <header className="admin-header-card">
+        <div className="admin-header-main">
           <div>
-            <span className="eyebrow">Dashboard admin</span>
-            <h1>CMS pengelolaan konten</h1>
-            <p>
-              Masuk sebagai <strong>{user?.email ?? 'admin'}</strong> untuk mengelola data tanaman,
-              kategori, dan media.
+            <span className="eyebrow admin-badge">
+              <span className="admin-badge__dot" /> CMS Portal Admin
+            </span>
+            <h1 className="admin-title">Pengelolaan Data TOGA Pedia</h1>
+            <p className="admin-subtitle">
+              Sistem manajemen konten terstruktur untuk mengelola katalog tanaman obat, kategori kesehatan, dan media edukasi desa.
             </p>
           </div>
 
-          <button className="button secondary" type="button" onClick={handleLogout}>
-            Keluar
-          </button>
+          <div className="admin-user-box">
+            <span className="user-email">{user?.email ?? 'admin@togapedia.id'}</span>
+            <button className="button secondary logout-btn" type="button" onClick={handleLogout}>
+              Keluar
+            </button>
+          </div>
         </div>
 
-        <div className="admin-stats">
-          <article className="admin-stat">
-            <strong>{tanaman.length}</strong>
-            <span>Total tanaman</span>
-          </article>
-          <article className="admin-stat">
-            <strong>{categories.length}</strong>
-            <span>Total kategori</span>
-          </article>
-          <article className="admin-stat">
-            <strong>{loading ? '...' : filteredTanaman.length}</strong>
-            <span>Hasil tampilan</span>
-          </article>
+        {/* System Stats Bar */}
+        <div className="admin-stats-grid">
+          <div className="admin-stat-card">
+            <span className="stat-label">Total Tanaman</span>
+            <strong className="stat-value">{tanaman.length}</strong>
+          </div>
+          <div className="admin-stat-card">
+            <span className="stat-label">Total Kategori</span>
+            <strong className="stat-value">{categories.length}</strong>
+          </div>
+          <div className="admin-stat-card">
+            <span className="stat-label">Hasil Tampilan</span>
+            <strong className="stat-value">{filteredTanaman.length}</strong>
+          </div>
         </div>
-      </article>
+      </header>
 
-      {successMessage ? (
-        <aside className="notice notice--success notice--actionable" role="status" aria-live="polite">
+      {/* Alert Notices */}
+      {successMessage && (
+        <aside className="notice notice--success notice--actionable" role="status">
           <div className="notice__content">
-            <strong>Berhasil:</strong>
-            <span>{successMessage}</span>
+            <strong>Berhasil:</strong> <span>{successMessage}</span>
           </div>
           <button className="button secondary notice__button" type="button" onClick={() => setSuccessMessage('')}>
             Tutup
           </button>
         </aside>
-      ) : null}
+      )}
 
-      {errorMessage ? (
+      {errorMessage && (
         <aside className="notice notice--actionable" role="alert">
           <div className="notice__content">
-            <strong>Catatan:</strong>
-            <span>{errorMessage}</span>
+            <strong>Catatan:</strong> <span>{errorMessage}</span>
           </div>
           <button className="button secondary notice__button" type="button" onClick={() => setErrorMessage('')}>
             Tutup
           </button>
         </aside>
-      ) : null}
+      )}
 
-      <div className="admin-grid">
-        <aside className="admin-sidebar">
-          <section className="admin-panel surface-card admin-panel--sticky">
-            <div className="admin-panel__header admin-panel__header--stacked">
-              <div>
-                <span className="eyebrow">Area form</span>
-                <h2>Kelola data tanpa menumpuk</h2>
-                <p>Pilih tab untuk membuka form tanaman atau kategori, sehingga panel tetap ringkas.</p>
-              </div>
+      {/* Main Modular Navigation Tabs */}
+      <div className="admin-nav-tabs">
+        <button
+          className={`admin-tab-btn ${activeTab === 'tanaman' ? 'active' : ''}`}
+          type="button"
+          onClick={() => setActiveTab('tanaman')}
+        >
+          <LeafIcon size={18} /> Kelola Data Tanaman ({tanaman.length})
+        </button>
+        <button
+          className={`admin-tab-btn ${activeTab === 'kategori' ? 'active' : ''}`}
+          type="button"
+          onClick={() => setActiveTab('kategori')}
+        >
+          <SproutIcon size={18} /> Kelola Kategori ({categories.length})
+        </button>
 
-              <button className="button secondary" type="button" onClick={handleReload} disabled={loading}>
-                {loading ? 'Menyegarkan...' : 'Muat ulang'}
-              </button>
+        <button className="button secondary refresh-btn" type="button" onClick={loadData} disabled={loading}>
+          {loading ? 'Menyegarkan...' : 'Muat Ulang Data'}
+        </button>
+      </div>
+
+      {/* TAB 1: Kelola Data Tanaman */}
+      {activeTab === 'tanaman' && (
+        <section className="admin-module-section">
+          <div className="module-header-bar">
+            <div>
+              <h2 className="module-title">Katalog Data Tanaman Obat</h2>
+              <p className="module-desc">Tambah, perbarui, atau hapus data tanaman yang tampil di publik.</p>
             </div>
 
-            <div className="admin-form-tabs" role="tablist" aria-label="Pilihan form admin">
-              <button
-                className={activeFormTab === 'tanaman' ? 'admin-form-tab active' : 'admin-form-tab'}
-                type="button"
-                role="tab"
-                aria-selected={activeFormTab === 'tanaman'}
-                onClick={() => setActiveFormTab('tanaman')}
-              >
-                Tanaman
-              </button>
-              <button
-                className={activeFormTab === 'kategori' ? 'admin-form-tab active' : 'admin-form-tab'}
-                type="button"
-                role="tab"
-                aria-selected={activeFormTab === 'kategori'}
-                onClick={() => setActiveFormTab('kategori')}
-              >
-                Kategori
-              </button>
-            </div>
+            <button className="button primary add-btn" type="button" onClick={handleOpenCreateTanaman}>
+              + Tambah Tanaman Baru
+            </button>
+          </div>
 
-            {activeFormTab === 'tanaman' ? (
-              <div className="admin-form-panel" role="tabpanel" aria-label="Form tanaman">
-                <div className="admin-panel__header admin-panel__header--compact">
-                  <div>
-                    <span className="eyebrow">Form tanaman</span>
-                    <h3>{editingTanaman ? 'Edit tanaman' : 'Tambah tanaman baru'}</h3>
-                    <p>Panel input dibuat terpisah supaya daftar data tetap lega walau kontennya banyak.</p>
-                  </div>
-
-                  {editingTanaman ? (
-                    <button className="button secondary" type="button" onClick={handleStartTanamanCreate}>
-                      Batalkan edit
-                    </button>
-                  ) : null}
-                </div>
-
-                <TanamanForm
-                  categories={categories}
-                  initialValue={editingTanaman}
-                  onCancel={handleStartTanamanCreate}
-                  onSubmit={handleSave}
-                  submitting={saving}
-                  key={editingId ?? 'create'}
-                />
-              </div>
-            ) : (
-              <div className="admin-form-panel" role="tabpanel" aria-label="Form kategori">
-                <div className="admin-panel__header admin-panel__header--compact">
-                  <div>
-                    <span className="eyebrow">Form kategori</span>
-                    <h3>{editingCategory ? 'Edit kategori' : 'Tambah kategori baru'}</h3>
-                    <p>Kategori dipisahkan agar pengelolaannya tidak bercampur dengan daftar tanaman.</p>
-                  </div>
-
-                  <button className="button secondary" type="button" onClick={handleStartCategoryCreate}>
-                    {editingCategory ? 'Batalkan edit' : 'Form baru'}
-                  </button>
-                </div>
-
-                <CategoryForm
-                  initialValue={editingCategory}
-                  onCancel={handleStartCategoryCreate}
-                  onSubmit={handleCategorySave}
-                  submitting={categorySaving}
-                  key={editingCategory?.id ?? 'create-category'}
-                />
-              </div>
-            )}
-          </section>
-        </aside>
-
-        <main className="admin-main">
-          <section className="admin-panel surface-card">
-            <div className="admin-panel__header admin-panel__header--stacked">
-              <div>
-                <span className="eyebrow">Daftar data tanaman</span>
-                <h2>Kelola katalog utama</h2>
-                <p>Gunakan pencarian, filter, dan pagination untuk menangani data yang semakin banyak.</p>
-              </div>
-
-              <div className="admin-panel__actions">
-                <button className="button secondary" type="button" onClick={resetTanamanFilters}>
-                  Reset filter
+          {/* Form Modal / Collapsible Section for Tanaman */}
+          {showTanamanForm && (
+            <div className="form-card-overlay">
+              <div className="form-card-header">
+                <h3>{editingTanaman ? `Edit Data: ${editingTanaman.nama_lokal}` : 'Input Tanaman Obat Baru'}</h3>
+                <button className="button secondary" type="button" onClick={handleCloseTanamanForm}>
+                  Batal
                 </button>
               </div>
+
+              <TanamanForm
+                categories={categories}
+                initialValue={editingTanaman}
+                onCancel={handleCloseTanamanForm}
+                onSubmit={handleSaveTanaman}
+                submitting={saving}
+                key={editingTanaman?.id ?? 'create-plant'}
+              />
+            </div>
+          )}
+
+          {/* Search & Filter Toolbar */}
+          <div className="admin-toolbar-card">
+            <div className="search-box">
+              <span className="search-box__icon">
+                <SearchIcon size={18} />
+              </span>
+              <input
+                type="search"
+                value={tanamanQuery}
+                onChange={(e) => {
+                  setTanamanQuery(e.target.value)
+                  setPage(1)
+                }}
+                placeholder="Cari berdasarkan nama lokal, latin, atau kategori..."
+              />
             </div>
 
-            <div className="admin-toolbar">
-              <label className="search-field search-field--wide" htmlFor="admin-search">
-                <span className="search-field__label">Cari tanaman</span>
-                <input
-                  id="admin-search"
-                  type="search"
-                  value={tanamanQuery}
-                  onChange={(event) => {
-                    setTanamanQuery(event.target.value)
-                    setPage(1)
-                  }}
-                  placeholder="Cari nama lokal, latin, atau kategori"
-                />
-              </label>
-
-              <label className="field admin-select">
-                <span>Filter kategori</span>
+            <div className="toolbar-controls">
+              <label className="select-field">
+                <span>Filter Kategori</span>
                 <select
                   value={categoryFilter}
-                  onChange={(event) => {
-                    setCategoryFilter(event.target.value)
+                  onChange={(e) => {
+                    setCategoryFilter(e.target.value)
                     setPage(1)
                   }}
                 >
-                  <option value="all">Semua kategori</option>
-                  {categoryOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                  <option value="all">Semua Kategori</option>
+                  {categoryOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
                     </option>
                   ))}
                 </select>
               </label>
 
-              <label className="field admin-select">
+              <label className="select-field">
                 <span>Urutkan</span>
                 <select
                   value={sortMode}
-                  onChange={(event) => {
-                    setSortMode(event.target.value)
+                  onChange={(e) => {
+                    setSortMode(e.target.value)
                     setPage(1)
                   }}
                 >
-                  <option value="newest">Terbaru dulu</option>
-                  <option value="alphabetical">A-Z</option>
+                  <option value="newest">Terbaru Dulu</option>
+                  <option value="alphabetical">A-Z (Nama Lokal)</option>
                 </select>
               </label>
-            </div>
 
-            <div className="admin-toolbar__meta">
-              <p>{loading ? 'Menyegarkan daftar...' : `${visibleRangeLabel} data ditampilkan`}</p>
-              <p>{tanamanQuery || categoryFilter !== 'all' ? 'Filter aktif' : 'Semua data tampil'}</p>
-            </div>
-
-            {loading ? (
-              <div className="admin-loading">Memuat data tanaman...</div>
-            ) : paginatedTanaman.length > 0 ? (
-              <>
-                <div className="admin-table admin-table--compact">
-                  {paginatedTanaman.map((item) => (
-                    <article key={item.id} className="admin-row admin-row--compact">
-                      <div className="admin-row__main">
-                        <div className="admin-row__identity">
-                          <h3>{item.nama_lokal}</h3>
-                          <p>{item.nama_latin || 'Nama latin belum diisi'}</p>
-                        </div>
-                        <small>{item.kategori?.nama_kategori ?? 'Tanpa kategori'}</small>
-                      </div>
-
-                      <div className="admin-row__actions">
-                        <button className="button secondary" type="button" onClick={() => handleStartTanamanEdit(item)}>
-                          Edit
-                        </button>
-                        <button className="button danger" type="button" onClick={() => setDeleteTarget(item)}>
-                          Hapus
-                        </button>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-
-                <div className="admin-pagination">
-                  <p>
-                    Halaman <strong>{currentPage}</strong> dari <strong>{totalPages}</strong>
-                  </p>
-
-                  <div className="admin-pagination__actions">
-                    <button
-                      className="button secondary"
-                      type="button"
-                      onClick={() => setPage((value) => Math.max(1, value - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      Sebelumnya
-                    </button>
-                    <button
-                      className="button secondary"
-                      type="button"
-                      onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Berikutnya
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="empty-state center">
-                <h2>Data tidak ditemukan</h2>
-                <p>Coba ubah kata kunci, filter kategori, atau reset tampilan untuk melihat semua data.</p>
-              </div>
-            )}
-          </section>
-
-          <section className="admin-panel surface-card">
-            <div className="admin-panel__header">
-              <div>
-                <span className="eyebrow">Data kategori</span>
-                <h2>Daftar kategori</h2>
-                <p>Kategori tetap tampil di bawah sebagai referensi cepat saat data mulai banyak.</p>
-              </div>
-            </div>
-
-            <div className="admin-table admin-table--compact">
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <article key={category.id} className="admin-row admin-row--compact">
-                    <div className="admin-row__main">
-                      <div className="admin-row__identity">
-                        <h3>{category.nama_kategori}</h3>
-                        <p>{category.deskripsi || 'Deskripsi kategori belum diisi.'}</p>
-                      </div>
-                    </div>
-
-                    <div className="admin-row__actions">
-                      <button className="button secondary" type="button" onClick={() => handleStartCategoryEdit(category)}>
-                        Edit
-                      </button>
-                      <button className="button danger" type="button" onClick={() => setDeleteCategoryTarget(category)}>
-                        Hapus
-                      </button>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                <div className="empty-state center">
-                  <h2>Belum ada kategori</h2>
-                  <p>Tambahkan kategori agar data tanaman lebih rapi dan mudah difilter.</p>
-                </div>
+              {(tanamanQuery || categoryFilter !== 'all') && (
+                <button className="reset-filter-btn" type="button" onClick={resetFilters}>
+                  Reset Filter
+                </button>
               )}
             </div>
-          </section>
-        </main>
-      </div>
+          </div>
 
-      {deleteTarget ? (
+          {/* Plant Data Table */}
+          {loading ? (
+            <div className="admin-loading-card">Memuat data tanaman...</div>
+          ) : paginatedTanaman.length > 0 ? (
+            <div className="admin-table-wrapper">
+              <table className="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>Preview</th>
+                    <th>Nama Tanaman</th>
+                    <th>Kategori</th>
+                    <th>Khasiat Ringkas</th>
+                    <th className="text-right">Aksi Management</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedTanaman.map((item) => (
+                    <tr key={item.id}>
+                      <td className="cell-thumb">
+                        <img
+                          src={item.image_url || DEFAULT_PLANT_IMAGE}
+                          alt={item.nama_lokal}
+                          className="table-plant-thumb"
+                          onError={(e) => {
+                            e.currentTarget.src = DEFAULT_PLANT_IMAGE
+                          }}
+                        />
+                      </td>
+                      <td className="cell-name">
+                        <strong>{item.nama_lokal}</strong>
+                        <small>{item.nama_latin || '-'}</small>
+                      </td>
+                      <td className="cell-category">
+                        <span className="table-badge">{item.kategori?.nama_kategori ?? 'Umum'}</span>
+                      </td>
+                      <td className="cell-benefit">
+                        <p className="line-clamp-2">{item.khasiat_medis || '-'}</p>
+                      </td>
+                      <td className="cell-actions text-right">
+                        <button
+                          className="button secondary btn-sm"
+                          type="button"
+                          onClick={() => handleOpenEditTanaman(item)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="button danger btn-sm"
+                          type="button"
+                          onClick={() => setDeleteTarget(item)}
+                        >
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Pagination */}
+              <div className="admin-pagination-bar">
+                <span>
+                  Halaman <strong>{currentPage}</strong> dari <strong>{totalPages}</strong> ({filteredTanaman.length} data)
+                </span>
+                <div className="pagination-btns">
+                  <button
+                    className="button secondary btn-sm"
+                    type="button"
+                    onClick={() => setPage((v) => Math.max(1, v - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    ← Sebelumnya
+                  </button>
+                  <button
+                    className="button secondary btn-sm"
+                    type="button"
+                    onClick={() => setPage((v) => Math.min(totalPages, v + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Berikutnya →
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="empty-catalog-state surface-card center">
+              <span className="empty-icon" aria-hidden="true">🌱</span>
+              <h3>Tanaman Tidak Ditemukan</h3>
+              <p>Tidak ada data tanaman yang cocok dengan pencarian atau filter Anda.</p>
+              <button className="button primary" type="button" onClick={resetFilters}>
+                Reset Filter &amp; Tampilkan Semua
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* TAB 2: Kelola Data Kategori */}
+      {activeTab === 'kategori' && (
+        <section className="admin-module-section">
+          <div className="module-header-bar">
+            <div>
+              <h2 className="module-title">Kategori Kesehatan Herbal</h2>
+              <p className="module-desc">Kelola kelompok kategori untuk mengelompokkan tanaman obat keluarga.</p>
+            </div>
+
+            <button className="button primary add-btn" type="button" onClick={handleOpenCreateCategory}>
+              + Tambah Kategori Baru
+            </button>
+          </div>
+
+          {/* Form Modal / Collapsible Section for Category */}
+          {showCategoryForm && (
+            <div className="form-card-overlay">
+              <div className="form-card-header">
+                <h3>{editingCategory ? `Edit Kategori: ${editingCategory.nama_kategori}` : 'Input Kategori Baru'}</h3>
+                <button className="button secondary" type="button" onClick={handleCloseCategoryForm}>
+                  Batal
+                </button>
+              </div>
+
+              <CategoryForm
+                initialValue={editingCategory}
+                onCancel={handleCloseCategoryForm}
+                onSubmit={handleSaveCategory}
+                submitting={categorySaving}
+                key={editingCategory?.id ?? 'create-category'}
+              />
+            </div>
+          )}
+
+          {/* Category Data Table */}
+          <div className="admin-table-wrapper">
+            <table className="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Nama Kategori</th>
+                  <th>Deskripsi Kategori</th>
+                  <th>Jumlah Tanaman</th>
+                  <th className="text-right">Aksi Management</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categories.map((cat) => {
+                  const plantCount = tanaman.filter((item) => String(item.kategori?.id ?? '') === String(cat.id)).length
+
+                  return (
+                    <tr key={cat.id}>
+                      <td className="cell-name">
+                        <strong>{cat.nama_kategori}</strong>
+                      </td>
+                      <td className="cell-benefit">
+                        <p>{cat.deskripsi || 'Belum ada deskripsi.'}</p>
+                      </td>
+                      <td className="cell-category">
+                        <span className="table-badge">{plantCount} tanaman</span>
+                      </td>
+                      <td className="cell-actions text-right">
+                        <button
+                          className="button secondary btn-sm"
+                          type="button"
+                          onClick={() => handleOpenEditCategory(cat)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="button danger btn-sm"
+                          type="button"
+                          onClick={() => setDeleteCategoryTarget(cat)}
+                        >
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* Delete Plant Confirmation Modal */}
+      {deleteTarget && (
         <section className="modal-backdrop" role="presentation" onClick={() => setDeleteTarget(null)}>
-          <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-title" onClick={(event) => event.stopPropagation()}>
-            <span className="eyebrow">Konfirmasi hapus</span>
-            <h2 id="delete-title">Hapus {deleteTarget.nama_lokal}?</h2>
+          <div
+            className="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="eyebrow">Konfirmasi Hapus</span>
+            <h2 id="delete-title">Hapus Tanaman "{deleteTarget.nama_lokal}"?</h2>
             <p>Tindakan ini akan menghapus data tanaman secara permanen dari database.</p>
 
             <div className="form-actions">
               <button className="button secondary" type="button" onClick={() => setDeleteTarget(null)}>
                 Batal
               </button>
-              <button className="button danger" type="button" onClick={handleDeleteConfirmed}>
-                Ya, hapus
+              <button className="button danger" type="button" onClick={handleDeleteTanamanConfirmed}>
+                Ya, Hapus Tanaman
               </button>
             </div>
           </div>
         </section>
-      ) : null}
+      )}
 
-      {deleteCategoryTarget ? (
+      {/* Delete Category Confirmation Modal */}
+      {deleteCategoryTarget && (
         <section className="modal-backdrop" role="presentation" onClick={() => setDeleteCategoryTarget(null)}>
-          <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-category-title" onClick={(event) => event.stopPropagation()}>
-            <span className="eyebrow">Konfirmasi hapus</span>
-            <h2 id="delete-category-title">Hapus kategori {deleteCategoryTarget.nama_kategori}?</h2>
-            <p>Kategori yang dihapus akan dilepas dari tanaman yang masih menggunakannya.</p>
+          <div
+            className="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-cat-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="eyebrow">Konfirmasi Hapus</span>
+            <h2 id="delete-cat-title">Hapus Kategori "{deleteCategoryTarget.nama_kategori}"?</h2>
+            <p>Kategori yang dihapus akan dilepas dari tanaman yang menggunakannya.</p>
 
             <div className="form-actions">
               <button className="button secondary" type="button" onClick={() => setDeleteCategoryTarget(null)}>
                 Batal
               </button>
               <button className="button danger" type="button" onClick={handleDeleteCategoryConfirmed}>
-                Ya, hapus
+                Ya, Hapus Kategori
               </button>
             </div>
           </div>
         </section>
-      ) : null}
-    </section>
+      )}
+    </div>
   )
 }
 

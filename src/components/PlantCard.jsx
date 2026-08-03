@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRightIcon } from './Icons'
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=800&q=80'
 
@@ -45,7 +46,7 @@ function PlantCard({ plant }) {
           </p>
 
           <span className="plant-card__link">
-            Lihat detail <span className="plant-card__arrow" aria-hidden="true">→</span>
+            Lihat detail <span className="plant-card__arrow" aria-hidden="true"><ArrowRightIcon size={16} /></span>
           </span>
         </div>
       </div>

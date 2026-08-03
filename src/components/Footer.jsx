@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { LeafIcon, BookIcon, TeaIcon, SproutIcon } from './Icons'
 
 function Footer() {
   return (
@@ -6,7 +7,9 @@ function Footer() {
       <div className="footer-content">
         <div className="footer-col footer-col--brand">
           <div className="brand footer-brand">
-            <span className="brand-mark" aria-hidden="true">🌱</span>
+            <span className="brand-mark" aria-hidden="true">
+              <LeafIcon size={22} />
+            </span>
             <span>
               <strong>TOGA Pedia Desa</strong>
               <small>Ensiklopedia Tanaman Obat Keluarga</small>
@@ -35,9 +38,15 @@ function Footer() {
         <div className="footer-col">
           <h4 className="footer-heading">Informasi Platform</h4>
           <ul className="footer-info-list">
-            <li>🌿 Informasi Herbal Terstruktur</li>
-            <li>🍵 Panduan Olahan Sederhana</li>
-            <li>📍 Program Pengabdian Desa</li>
+            <li className="footer-info-item">
+              <BookIcon size={16} /> <span>Informasi Herbal Terstruktur</span>
+            </li>
+            <li className="footer-info-item">
+              <TeaIcon size={16} /> <span>Panduan Olahan Sederhana</span>
+            </li>
+            <li className="footer-info-item">
+              <SproutIcon size={16} /> <span>Budidaya Mandiri Pekarangan</span>
+            </li>
           </ul>
         </div>
       </div>

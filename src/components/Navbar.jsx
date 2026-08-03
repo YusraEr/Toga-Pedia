@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { LeafIcon } from './Icons'
 
 const navItems = [
   { label: 'Beranda', to: '/', end: true },
@@ -23,7 +24,7 @@ function Navbar() {
       <div className="navbar">
         <Link to="/" className="brand" onClick={closeMobileMenu} aria-label="TOGA Pedia Desa Beranda">
           <span className="brand-mark" aria-hidden="true">
-            🌱
+            <LeafIcon size={22} />
           </span>
           <span className="brand-text">
             <strong>TOGA Pedia Desa</strong>

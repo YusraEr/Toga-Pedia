@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import PlantCard from './PlantCard'
 import { getTanamanCatalog } from '../services/tanamanService'
+import { SearchIcon, SproutIcon } from './Icons'
 
 function TanamanCollectionView({
   eyebrow = 'Ensiklopedia Herbal',
@@ -137,7 +138,9 @@ function TanamanCollectionView({
         <div className="catalog-filter-bar">
           {/* Integrated Search Box */}
           <div className="search-box">
-            <span className="search-box__icon" aria-hidden="true">🔍</span>
+            <span className="search-box__icon" aria-hidden="true">
+              <SearchIcon size={18} />
+            </span>
             <input
               id="catalog-search-input"
               type="search"
@@ -220,7 +223,9 @@ function TanamanCollectionView({
           </div>
         ) : (
           <div className="empty-catalog-state surface-card center">
-            <span className="empty-icon" aria-hidden="true">🌱</span>
+            <span className="empty-icon" aria-hidden="true">
+              <SproutIcon size={48} />
+            </span>
             <h2>Tanaman Tidak Ditemukan</h2>
             <p>
               Tidak ada tanaman obat yang cocok dengan pencarian <strong>"{searchTerm}"</strong>

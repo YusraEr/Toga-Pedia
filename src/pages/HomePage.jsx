@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PlantCard from '../components/PlantCard'
 import { getTanamanCatalog } from '../services/tanamanService'
+import { LeafIcon, SearchIcon, TeaIcon, SproutIcon, HealthIcon, ArrowRightIcon } from '../components/Icons'
 
 function HomePage() {
   const [featuredPlants, setFeaturedPlants] = useState([])
@@ -51,16 +52,18 @@ function HomePage() {
 
           <div className="hero-actions">
             <Link className="button primary hero-btn" to="/katalog">
-              Jelajahi Katalog Tanaman <span aria-hidden="true">→</span>
+              Jelajahi Katalog Tanaman <ArrowRightIcon size={18} />
             </Link>
             <Link className="button secondary hero-btn" to="/katalog">
-              <span aria-hidden="true">🔍</span> Cari Tanaman Obat
+              <SearchIcon size={18} /> Cari Tanaman Obat
             </Link>
           </div>
 
           <div className="hero-features-bar">
             <div className="hero-feature-item">
-              <span className="hero-feature-icon" aria-hidden="true">🌿</span>
+              <span className="hero-feature-icon" aria-hidden="true">
+                <LeafIcon size={20} />
+              </span>
               <div>
                 <strong>Informasi Teruji</strong>
                 <small>Khasiat &amp; takaran konsumsi aman</small>
@@ -68,7 +71,9 @@ function HomePage() {
             </div>
 
             <div className="hero-feature-item">
-              <span className="hero-feature-icon" aria-hidden="true">🍵</span>
+              <span className="hero-feature-icon" aria-hidden="true">
+                <TeaIcon size={20} />
+              </span>
               <div>
                 <strong>Resep Tradisional</strong>
                 <small>Panduan rebusan &amp; seduhan harian</small>
@@ -76,7 +81,9 @@ function HomePage() {
             </div>
 
             <div className="hero-feature-item">
-              <span className="hero-feature-icon" aria-hidden="true">🌱</span>
+              <span className="hero-feature-icon" aria-hidden="true">
+                <SproutIcon size={20} />
+              </span>
               <div>
                 <strong>Budidaya Mandiri</strong>
                 <small>Tips tanam di pekarangan desa</small>
@@ -98,7 +105,7 @@ function HomePage() {
           </div>
 
           <Link className="button secondary desktop-only-btn" to="/katalog">
-            Lihat Semua Tanaman →
+            Lihat Semua Tanaman <ArrowRightIcon size={16} />
           </Link>
         </div>
 
@@ -126,7 +133,7 @@ function HomePage() {
 
         <div className="mobile-only-btn-wrapper">
           <Link className="button secondary full-width-btn" to="/katalog">
-            Lihat Seluruh Katalog Tanaman →
+            Lihat Seluruh Katalog Tanaman <ArrowRightIcon size={16} />
           </Link>
         </div>
       </section>
@@ -143,7 +150,9 @@ function HomePage() {
 
         <div className="pillars-grid">
           <article className="pillar-card">
-            <div className="pillar-icon pillar-icon--green" aria-hidden="true">🏥</div>
+            <div className="pillar-icon pillar-icon--green" aria-hidden="true">
+              <HealthIcon size={24} />
+            </div>
             <h3>Khasiat &amp; Dosis Aman</h3>
             <p>
               Penjelasan manfaat kesehatan dilengkapi takaran konsumsi harian agar pemanfaatan herbal tetap aman dan berkhasiat optimal.
@@ -151,7 +160,9 @@ function HomePage() {
           </article>
 
           <article className="pillar-card">
-            <div className="pillar-icon pillar-icon--amber" aria-hidden="true">🍵</div>
+            <div className="pillar-icon pillar-icon--amber" aria-hidden="true">
+              <TeaIcon size={24} />
+            </div>
             <h3>Petunjuk Olah Praktis</h3>
             <p>
               Panduan langkah demi langkah merebus, menyeduh, dan meracik rimpang atau daun obat untuk konsumsi herbal keluarga.
@@ -159,7 +170,9 @@ function HomePage() {
           </article>
 
           <article className="pillar-card">
-            <div className="pillar-icon pillar-icon--earth" aria-hidden="true">🌱</div>
+            <div className="pillar-icon pillar-icon--earth" aria-hidden="true">
+              <SproutIcon size={24} />
+            </div>
             <h3>Budidaya Pekarangan</h3>
             <p>
               Petunjuk media tanam, pemeliharaan, dan penyiraman untuk membudidayakan bibit tanaman obat mandiri di kebun rumah.
