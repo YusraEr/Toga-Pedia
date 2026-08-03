@@ -293,28 +293,26 @@ function PlantDetailPage() {
             </div>
           </section>
 
-          {/* Section 3: Consumption & Preparation */}
+          {/* Section 3: Dosage */}
+          <section className="wiki-section">
+            <h2 className="wiki-section-title">
+              <span className="wiki-icon" aria-hidden="true">
+                <HealthIcon size={22} />
+              </span>{' '}
+              Dosis &amp; Takaran Konsumsi Aman
+            </h2>
+            <p className="wiki-paragraph">{tanaman.takaran_konsumsi}</p>
+          </section>
+
+          {/* Section 4: Preparation */}
           <section className="wiki-section">
             <h2 className="wiki-section-title">
               <span className="wiki-icon" aria-hidden="true">
                 <TeaIcon size={22} />
               </span>{' '}
-              Dosis &amp; Pengolahan
+              Panduan Pengolahan &amp; Penyajian
             </h2>
-
-            <div className="wiki-grid-two">
-              <div className="wiki-subcard">
-                <span className="subcard-tag">Takaran Konsumsi</span>
-                <h4>Dosis Aman Harian</h4>
-                <p>{tanaman.takaran_konsumsi}</p>
-              </div>
-
-              <div className="wiki-subcard">
-                <span className="subcard-tag">Panduan Olah</span>
-                <h4>Cara Penyajian</h4>
-                <p>{tanaman.panduan_olah}</p>
-              </div>
-            </div>
+            <p className="wiki-paragraph">{tanaman.panduan_olah}</p>
           </section>
 
           {/* Section 4: Cultivation Guide */}
