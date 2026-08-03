@@ -1233,6 +1233,7 @@ h2 {
 }
 
 @media (max-width: 720px) {
+
   .admin-grid,
   .admin-toolbar {
     grid-template-columns: 1fr;
@@ -1488,7 +1489,7 @@ h2 {
   font-size: clamp(1.5rem, 2.8vw, 2.1rem);
   font-weight: 800;
   color: var(--brand-strong);
-  margin-top: 4px;
+  margin-top: 12px;
 }
 
 .section-desc {
@@ -1496,6 +1497,7 @@ h2 {
   font-size: 0.98rem;
   max-width: 58ch;
   margin-top: 6px;
+  margin-bottom: 12px;
   line-height: 1.55;
 }
 
@@ -1613,6 +1615,7 @@ h2 {
 }
 
 @media (max-width: 900px) {
+
   .hero-features-bar,
   .pillars-grid,
   .steps-grid {
@@ -1853,6 +1856,43 @@ h2 {
 .footer-tagline {
   color: var(--brand-strong);
   font-weight: 600;
+}
+
+/* Footer Mobile Responsiveness */
+@media (max-width: 900px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 32px 24px;
+  }
+
+  .footer-desc {
+    max-width: 100%;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-footer {
+    margin-top: 32px;
+    border-radius: var(--radius-lg);
+  }
+
+  .footer-content {
+    padding: 24px 16px;
+    gap: 24px;
+  }
+
+  .footer-bottom {
+    padding: 14px 16px;
+    font-size: 0.82rem;
+  }
 }
 
 /* ==========================================================================
@@ -2498,6 +2538,7 @@ h2 {
 }
 
 @media (max-width: 600px) {
+
   .wiki-header-card,
   .wiki-section {
     padding: 18px 16px !important;
@@ -3042,4 +3083,230 @@ h2 {
   border-radius: 999px;
   font-weight: 700;
   font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Scroll Reveal Animations & UI Harmonized Spacing
+   ========================================================================== */
+
+/* Harmonized Card & Container Gaps */
+.catalog-grid {
+  gap: 20px !important;
+}
+
+.home-page-container,
+.catalog-page-container,
+.wiki-page-container,
+.admin-dashboard-container {
+  gap: 24px !important;
+}
+
+.wiki-main-column {
+  gap: 20px !important;
+}
+
+.wiki-section {
+  gap: 12px !important;
+}
+
+.wiki-paragraph {
+  line-height: 1.68 !important;
+  margin-bottom: 6px !important;
+}
+
+.home-hero-description,
+.catalog-hero__description,
+.footer-desc {
+  line-height: 1.65 !important;
+}
+
+/* Scroll Reveal Animation Trigger */
+/* ==========================================================================
+   Fail-Safe Page Animations & Harmonized Spacing
+   ========================================================================== */
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0.4;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-content {
+  animation: pageFadeIn 350ms cubic-bezier(0.16, 1, 0.3, 1) ease-out;
+}
+
+/* Ensure ALL cards, sections, and footers are ALWAYS 100% visible */
+.plant-card,
+.surface-card,
+.wiki-section,
+.catalog-hero-card,
+.home-hero-card,
+.feature-card,
+.step-card,
+.wiki-header-card,
+.wiki-infobox,
+.admin-header-card,
+.module-header-bar,
+.admin-toolbar-card,
+.admin-table-wrapper,
+.site-footer {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ==========================================================================
+   User-Friendly Plant Input Form Styles
+   ========================================================================== */
+
+.form-user-friendly {
+  display: grid;
+  gap: 24px;
+}
+
+.form-section-group {
+  border: 1px solid rgba(47, 111, 65, 0.14);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  background: rgba(247, 250, 244, 0.5);
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.form-section-legend {
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(47, 111, 65, 0.2);
+}
+
+.section-step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--brand-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.required-star {
+  color: #d32f2f;
+  margin-left: 2px;
+}
+
+.form-grid-three {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-field-full {
+  grid-column: 1 / -1;
+}
+
+.form-user-friendly label.field input,
+.form-user-friendly label.field select,
+.form-user-friendly label.field textarea {
+  border-radius: 14px;
+  border: 1px solid rgba(48, 64, 54, 0.16);
+  background: #ffffff;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  outline: none;
+  transition: all 180ms ease;
+}
+
+.form-user-friendly label.field input:focus,
+.form-user-friendly label.field select:focus,
+.form-user-friendly label.field textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(47, 111, 65, 0.12);
+}
+
+.form-media-preview {
+  margin-top: 4px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(47, 111, 65, 0.14);
+  display: grid;
+  gap: 10px;
+}
+
+.preview-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brand-strong);
+}
+
+.preview-img-wrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(48, 64, 54, 0.12);
+  background: #f4f7f2;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-img-fallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  text-align: center;
+  font-size: 0.76rem;
+  color: #a84242;
+  font-weight: 600;
+}
+
+.form-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(48, 64, 54, 0.1);
+}
+
+.form-submit-btn {
+  padding: 12px 24px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+@media (max-width: 900px) {
+
+  .form-grid-three,
+  .form-grid-two {
+    grid-template-columns: 1fr;
+  }
 }
