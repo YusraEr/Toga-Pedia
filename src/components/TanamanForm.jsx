@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { sanitizeInput, isValidHttpUrl } from '../utils/sanitize'
 
 const initialState = {
   nama_lokal: '',
@@ -32,13 +33,20 @@ function TanamanForm({ categories, initialValue, onCancel, onSubmit, submitting 
 
   function validate() {
     const nextErrors = {}
+    const cleanNama = sanitizeInput(formData.nama_lokal)
+    const cleanDeskripsi = sanitizeInput(formData.deskripsi)
+    const rawImageUrl = formData.image_url.trim()
 
-    if (!formData.nama_lokal.trim()) {
-      nextErrors.nama_lokal = 'Nama lokal tanaman wajib diisi.'
+    if (!cleanNama || cleanNama.length < 2) {
+      nextErrors.nama_lokal = 'Nama lokal tanaman minimal 2 karakter.'
     }
 
-    if (!formData.deskripsi.trim()) {
-      nextErrors.deskripsi = 'Deskripsi tanaman wajib diisi.'
+    if (!cleanDeskripsi || cleanDeskripsi.length < 10) {
+      nextErrors.deskripsi = 'Deskripsi tanaman minimal 10 karakter.'
+    }
+
+    if (rawImageUrl && !isValidHttpUrl(rawImageUrl)) {
+      nextErrors.image_url = 'URL foto spesimen tidak valid. Harus diawali dengan http:// atau https://'
     }
 
     setErrors(nextErrors)
@@ -50,7 +58,21 @@ function TanamanForm({ categories, initialValue, onCancel, onSubmit, submitting 
     if (!validate()) {
       return
     }
-    onSubmit(formData)
+
+    // Sanitize all payload fields before sending to service / database
+    const sanitizedPayload = {
+      ...formData,
+      nama_lokal: sanitizeInput(formData.nama_lokal),
+      nama_latin: sanitizeInput(formData.nama_latin),
+      deskripsi: sanitizeInput(formData.deskripsi),
+      khasiat_medis: sanitizeInput(formData.khasiat_medis),
+      takaran_konsumsi: sanitizeInput(formData.takaran_konsumsi),
+      panduan_tanam: sanitizeInput(formData.panduan_tanam),
+      panduan_olah: sanitizeInput(formData.panduan_olah),
+      image_url: formData.image_url.trim(),
+    }
+
+    onSubmit(sanitizedPayload)
   }
 
   return (
@@ -107,12 +129,16 @@ function TanamanForm({ categories, initialValue, onCancel, onSubmit, submitting 
             onChange={handleChange}
             placeholder="https://images.unsplash.com/photo-..."
           />
-          <small className="field-hint">
-            Masukkan tautan URL foto spesimen tanaman yang jernih (Unsplash, Supabase Storage, dll).
-          </small>
+          {errors.image_url ? (
+            <small className="field-error">{errors.image_url}</small>
+          ) : (
+            <small className="field-hint">
+              Masukkan tautan URL foto spesimen tanaman yang jernih (harus diawali http:// atau https://).
+            </small>
+          )}
         </div>
 
-        {formData.image_url && (
+        {formData.image_url && !errors.image_url && (
           <div className="form-media-preview">
             <span className="preview-label">Pratinjau Foto Spesimen:</span>
             <div className="preview-img-wrapper">

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import QRCode from 'qrcode'
 import PlantCard from '../components/PlantCard'
 import { getTanamanBySlug, getTanamanCatalog } from '../services/tanamanService'
+import { setPageMeta } from '../utils/seo'
 import {
   BookIcon,
   HealthIcon,
@@ -38,10 +39,18 @@ function PlantDetailPage() {
         }
 
         setTanaman(result.data)
-        if (result.data?.image_url) {
-          setImgSrc(result.data.image_url)
-        } else {
-          setImgSrc(DEFAULT_IMAGE)
+        if (result.data) {
+          setPageMeta({
+            title: `${result.data.nama_lokal} (${result.data.nama_latin})`,
+            description: result.data.khasiat_medis || result.data.deskripsi,
+            image: result.data.image_url,
+          })
+
+          if (result.data.image_url) {
+            setImgSrc(result.data.image_url)
+          } else {
+            setImgSrc(DEFAULT_IMAGE)
+          }
         }
 
         if (result.error && !result.data) {

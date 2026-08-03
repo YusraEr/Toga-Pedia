@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PlantCard from '../components/PlantCard'
 import { getTanamanCatalog } from '../services/tanamanService'
+import { setPageMeta } from '../utils/seo'
 import { LeafIcon, SearchIcon, TeaIcon, SproutIcon, HealthIcon, ArrowRightIcon } from '../components/Icons'
 
 function HomePage() {
@@ -9,6 +10,11 @@ function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setPageMeta({
+      title: 'Panduan Kesehatan Herbal & Tanaman Obat Keluarga',
+      description: 'Ensiklopedia digital TOGA Pedia Desa untuk membantu warga desa mengenal manfaat kesehatan, takaran konsumsi aman, dan panduan budidaya alami.',
+    })
+
     let isMounted = true
 
     async function loadFeatured() {

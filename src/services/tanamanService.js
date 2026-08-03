@@ -114,10 +114,6 @@ export async function getTanamanCatalog() {
   }
 
   const normalizedList = (data ?? []).map(normalizeTanaman)
-  if (normalizedList.length === 0) {
-    return { data: demoTanaman.map(normalizeTanaman), source: 'demo', error: null }
-  }
-
   return { data: normalizedList, source: 'supabase', error: null }
 }
 
@@ -129,7 +125,7 @@ export async function getTanamanBySlug(slug) {
   const cleanSlug = decodeURIComponent(String(slug)).toLowerCase().trim().replace(/\/+$/, '')
 
   const catalog = await getTanamanCatalog()
-  const allPlants = catalog.data && catalog.data.length > 0 ? catalog.data : demoTanaman.map(normalizeTanaman)
+  const allPlants = catalog.data || []
 
   const isMatch = (item) => {
     if (!item) return false
@@ -147,6 +143,7 @@ export async function getTanamanBySlug(slug) {
   let found = allPlants.find(isMatch)
 
   if (!found) {
+    // Check fallback in demo items if not found in catalog
     found = demoTanaman.map(normalizeTanaman).find(isMatch)
   }
 
