@@ -2126,7 +2126,7 @@ h2 {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .wiki-header-card,
   .wiki-section {
     padding: 18px 16px;
@@ -2134,10 +2134,14 @@ h2 {
 
   .wiki-title {
     font-size: 1.85rem;
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
   .wiki-latin-name {
     font-size: 1.02rem;
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
   .wiki-section-title {
@@ -2147,41 +2151,40 @@ h2 {
   .wiki-subcard {
     padding: 14px 16px;
   }
-}
 
-@media (max-width: 480px) {
   .wiki-infobox-grid {
-    padding: 14px 14px;
-    gap: 10px;
+    padding: 14px 16px;
+    gap: 12px;
   }
 
+  /* Single Column Stack for Specifications Info Row on Mobile */
   .infobox-row {
-    display: grid;
-    grid-template-columns: minmax(84px, auto) 1fr;
-    align-items: baseline;
-    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
     padding-bottom: 8px;
   }
 
   .infobox-row dt {
-    font-size: 0.84rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--brand-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   .infobox-row dd {
-    font-size: 0.86rem;
-    text-align: right;
+    font-size: 0.94rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-main);
   }
 
   .wiki-infobox-disclaimer {
     margin: 4px 12px 14px;
     padding: 12px 14px;
     font-size: 0.8rem;
-  }
-
-  .wiki-title {
-    font-size: clamp(1.6rem, 6vw, 2.1rem);
-    word-break: break-word;
-    overflow-wrap: anywhere;
   }
 }
 
